@@ -1,0 +1,125 @@
+@charset "utf-8";
+/* CSS Document */
+/* resect */
+@font-face {
+        font-family: 'sirus';
+        font-weight: normal;
+        font-style: normal;
+}
+body, ul, li, h3, p {
+        margin:0;
+        padding:0;
+}
+li {
+        list-style:none;
+}
+a {
+        text-decoration:none;
+}
+/* resect */
+
+body {
+        font-family:Arial, Helvetica, sans-serif;
+}
+.musicPlayer {
+        right: 0px;
+        top: 50px;
+        position: fixed;
+        /*transform:rotate(90deg);
+        -ms-transform:rotate(90deg);    
+        -moz-transform:rotate(90deg);    
+        -webkit-transform:rotate(90deg); 
+        -o-transform:rotate(90deg);*/ 
+        margin:0px auto;
+        width:300px;
+        height:130px;
+        border-radius:8px;
+        background:#DAC9A6;
+        display:block;
+}
+.song{
+        height: 70%;
+}
+.cover {
+        float:left;
+        margin:16px 0 0 16px;
+        width:60px;
+        height:60px;
+        border-radius: 4px;
+        box-shadow:1px 1px 10px rgba(0,0,0,0.4), -1px -1px 10px rgba(0,0,0,0.4);
+}
+.songsInfo{
+        padding:15px 0 0 100px;
+        width: 60%;
+}
+.song-name, .singer {
+        text-align: left;
+}
+#volume {
+        position: absolute;
+        left: 250px;
+        bottom: 40px;
+        width:8px;
+        height:70px;
+}
+.btnMenu {
+        display: block;
+        height:30%;
+        padding:0 0 6px 30px;
+        background:#DAC9A6;
+        border-radius:8px;
+}
+
+.btnMenu span, #progress {
+        float:left;
+        cursor:pointer;
+        color:#78C2C4;
+        -webkit-transition:text-shadow ease-in 0.3s;
+        -moz-transition:text-shadow ease-in 0.3s;
+        -o-transition:text-shadow ease-in 0.3s;
+}
+#progress {
+        width:120px;
+        height:10px;
+        margin:12px 20px;
+        border-radius:5px;
+}
+
+.btnMenu span:hover {
+        color:#FFFFFF;
+}
+.volumeBar {
+        float: right;
+        width: 60px;
+        height: 30px;
+        border-radius:4px;
+}
+.volumeBar:after {
+        width:0px;
+        height:0px;
+        border-right:6px solid rgba(10,57,73,0.6);
+        border-left:6px solid rgba(10,57,73,0.6);
+        border-top:6px solid rgba(0,0,0,0.3);
+}
+
+
+div .ui-slider-range:hover {
+        box-shadow:0px 0px 6px #78C2C4;
+}
+div .ui-slider-handle {
+        display:none;
+}
+#progress .ui-slider-range {
+        background:#78C2C4;
+}
+#progress.ui-widget-content {
+        border:1px solid gray;
+        background:gray;
+}
+#volume .ui-slider-range {
+        background:#78C2C4;
+}
+#volume.ui-widget-content {
+        border:1px solid gray;
+        background:gray;
+}

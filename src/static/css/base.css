@@ -1,0 +1,44 @@
+body{
+	margin: 0;
+	padding: 0;
+	background-color: #78C2C4;
+}
+#main{
+	width: 80%;
+	background-color: #FCFAF2;
+	margin: auto 10%;
+	text-align: center;
+}
+#cover{
+	margin: auto 0;
+	width: 45%;
+}
+#text{
+	text-align: left;
+	display:inline-block;
+	margin: 10px 40px;
+}
+.pic_in_text_left{
+	margin: 5px;
+	float: left;
+	border: 3px solid #42602D;
+}
+.pic_in_text_right{
+	margin: 5px;
+	float: right;
+	border: 3px solid #42602D;
+}
+
+.pic_in_text_center{
+	text-align: center;
+}
+.pic_in_text_center img{
+	border: 3px solid #42602D;
+}
+h3{
+	margin: 0px;
+}
+p{
+	margin: 0;
+	padding: 0;
+}
