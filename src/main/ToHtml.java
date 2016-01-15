@@ -90,12 +90,44 @@ public class ToHtml {
 		return new_div;
 	}
 	
-	public void insert_sound(){
-		
+	public String insert_sound(String sound_text, String sound_id){
+		String full_sound_name = "sound" + sound_id;
+		System.out.println("==========insert sound " + full_sound_name + "==========");
+		File sound_dir = new File("src/static/sounds");
+		String new_paly_logo = "";
+		if(sound_dir.isDirectory()){
+			File[] sound_files = sound_dir.listFiles();//遍历音频文件
+			for(File sound_file: sound_files){
+				//System.out.println(file.getName());
+				if(sound_file.getName().startsWith(full_sound_name)){//按文件名匹配音频
+					String onclick = "play_sound('../static/sounds/" + sound_file.getName() + "')";
+					new_paly_logo = "<img class='play_logo' onclick=" + onclick + " src='../static/img/play.png'/>";
+				}
+			}
+		}
+		return new_paly_logo;
 	}
 	
-	public void insert_video(){
-		
+	public String insert_video(String video_text, String video_id) throws IOException{
+		String full_video_name = "video" + video_id;
+		System.out.println("==========insert video " + full_video_name + "==========");
+		File video_dir = new File("src/static/videos");
+		String new_video_page = "";
+		String new_video_link = "";
+		if(video_dir.isDirectory()){
+			File[] video_files = video_dir.listFiles();//遍历音频文件
+			for(File video_file: video_files){
+				if(video_file.getName().startsWith(full_video_name)){//按文件名匹配音频
+					new_video_page = "<video class='video_in_text' controls='controls' height='500' style='clear: both;display: block;margin: auto;' src='../static/videos/" + video_file.getName() + "' width='600'></video>";
+					RandomAccessFile output_file = new RandomAccessFile("src/output/" + video_file.getName() + ".html", "rw");
+					output_file.seek(0);
+					output_file.write(new_video_page.getBytes());
+					output_file.close();//输出保存html文件
+					new_video_link = "<a target='_blank' href='" + video_file.getName() + ".html'>" + video_text + "</a>";
+				}
+			}
+		}System.out.println(new_video_link);
+		return new_video_link;
 	}
 	
 	public void handle_html(File text_file) throws IOException{
@@ -111,7 +143,7 @@ public class ToHtml {
 		ArrayList<String> lines = new ArrayList<String>();  //实例化一个数组装文章段落
 		lines.add(eachline);
 		while (eachline != null) {   
-			System.out.println(eachline.toString().trim()); 
+//			System.out.println(eachline.toString().trim()); 
 			if(eachline.length() > 0){
 				lines.add(eachline);
 			}
@@ -123,6 +155,7 @@ public class ToHtml {
 		Element text_box = base_html.select("div#text").first();
 		//System.out.println(text_box.toString());
 	    Element js_box = base_html.select("script#main").first();
+	    Element body = base_html.select("body").first();
 	    
 	    Pattern img_pat = Pattern.compile("\\((\\W+?)\\)\\[" + img_keyword + "(\\S+?)\\]");
 		Pattern sound_pat = Pattern.compile("\\((\\W+?)\\)\\[" + sound_keyword + "(\\S+?)\\]");
@@ -133,29 +166,45 @@ public class ToHtml {
 			Matcher img_mat = img_pat.matcher(line);
 			Matcher sound_mat = sound_pat.matcher(line);
 			Matcher video_mat = video_pat.matcher(line);
-			String para = "<p>" + line.trim() + "</p><br/>";
+			String para = "<p>" + line.trim();
 			if(img_mat.find()){
-				System.out.println(img_mat.group(1));
 				String img_text = img_mat.group(1);
 				String img_id = img_mat.group(2);
-//				this.insert_img(img_text, img_id, lcount, rcount);
 				System.out.println(this.lcount + " " + this.rcount);
 				text_box.append(this.insert_img(img_text, img_id, this.lcount, this.rcount));
 				para = para.replace(img_mat.group(0), img_mat.group(1));
 			}
 			if(sound_mat.find()){
+				String sound_text = sound_mat.group(1);
+				String sound_id = sound_mat.group(2);
+				para += this.insert_sound(sound_text, sound_id);
 				para = para.replace(sound_mat.group(0), sound_mat.group(1));
 			}
 			if(video_mat.find()){
-				para = para.replace(video_mat.group(0), video_mat.group(1));
+				String video_text = video_mat.group(1);
+				String video_id = video_mat.group(2);
+				para = para.replace(video_mat.group(0), this.insert_video(video_text, video_id));
 			}
 //			System.out.println(para);
-			text_box.append(para);
+			text_box.append(para + "</p><br>");
 		}
+		File audio_file = new File("src/rawhtml/audio.html");
+		InputStreamReader audio_read = new InputStreamReader(   
+				new FileInputStream(audio_file), encoding);   
+		BufferedReader audiobufferedReader = new BufferedReader(audio_read);  
+		String audio_str = "";
+		eachline = audiobufferedReader.readLine();
+		while(eachline!=null){
+			audio_str += eachline + "\n";
+			eachline = audiobufferedReader.readLine();
+		}
+		System.out.println(audio_str);
+		body.append(audio_str);
+		audio_read.close();
 		System.out.println(base_html);
 		RandomAccessFile output_file = new RandomAccessFile("src/output/" + text_file.getName() + ".html", "rw");
 		output_file.seek(0);
-		output_file.write(base_html.html().getBytes());
+		output_file.write(base_html.toString().getBytes());
 		output_file.close();//输出保存html文件
 		read.close();  
 	}
