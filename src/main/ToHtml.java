@@ -32,14 +32,17 @@ public class ToHtml {
 	}
 	
 	public void change_img_size(BufferedImage raw_img, String new_pic_url) throws IOException{
+		//处理需要缩小的图片
 		System.out.println("==========change img size==========");
+		//获取原始图片长宽
 	    int row_width = raw_img.getWidth(), row_height = raw_img.getHeight();
+	    //计算缩小的比例
 	    float radio = (float) row_width/300;
+	    //计算缩小后的长宽
 	    int new_width = 300, new_height = (int) (row_height/radio);
-	    //System.out.println(new_width + " " + new_height);
+	    
 	    Image small_img = raw_img.getScaledInstance(new_width, new_height, Image.SCALE_SMOOTH);//缩小
-	    BufferedImage new_img = new BufferedImage(new_width, new_height,
-                BufferedImage.TYPE_INT_RGB);
+	    BufferedImage new_img = new BufferedImage(new_width, new_height, BufferedImage.TYPE_INT_RGB);
         Graphics g = new_img.getGraphics();
         g.drawImage(small_img, 0, 0, null); // 绘制缩小后的图
         g.dispose();
@@ -47,17 +50,16 @@ public class ToHtml {
 	}
 	
 	public String insert_img(String img_text, String img_id, int lcount, int rcount) throws IOException{
-		String full_pic_name = "pic" + img_id;
+		//插入图片函数
+		String full_pic_name = this.img_keyword + img_id;//获取不带后缀的文件全名
 		System.out.println("==========insert img " + full_pic_name + "==========");
 		File img_dir = new File("src/static/pics");
 		String new_div = "";
 		if(img_dir.isDirectory()){
 			File[] img_files = img_dir.listFiles();//遍历图片文件
 			for(File img_file: img_files){
-				//System.out.println(file.getName());
 				if(img_file.getName().startsWith(full_pic_name)){//按文件名匹配图片
 					BufferedImage cur_img = ImageIO.read(img_file);//打开图片文件
-					//System.out.println(cur_img.getHeight()+" "+cur_img.getWidth());
 					if(cur_img.getWidth() > 400 && cur_img.getWidth() > cur_img.getHeight()){
 						new_div = "<div class='pic_in_text_center'><img src='../static/pics/" 
 								+ img_file.getName() + "' alt=''></div>";
@@ -91,7 +93,8 @@ public class ToHtml {
 	}
 	
 	public String insert_sound(String sound_text, String sound_id){
-		String full_sound_name = "sound" + sound_id;
+		//读取音频文件，生成一个音频播放按钮
+		String full_sound_name = this.sound_keyword + sound_id;
 		System.out.println("==========insert sound " + full_sound_name + "==========");
 		File sound_dir = new File("src/static/sounds");
 		String new_paly_logo = "";
@@ -109,7 +112,8 @@ public class ToHtml {
 	}
 	
 	public String insert_video(String video_text, String video_id) throws IOException{
-		String full_video_name = "video" + video_id;
+		//读取视频文件，生成一个视频页面，并返回打开链接的link
+		String full_video_name = this.video_keyword + video_id;
 		System.out.println("==========insert video " + full_video_name + "==========");
 		File video_dir = new File("src/static/videos");
 		String new_video_page = "";
@@ -126,97 +130,103 @@ public class ToHtml {
 					new_video_link = "<a target='_blank' href='" + video_file.getName() + ".html'>" + video_text + "</a>";
 				}
 			}
-		}System.out.println(new_video_link);
+		}
 		return new_video_link;
 	}
 	
 	public void handle_html(File text_file) throws IOException{
 		this.lcount = 0;
-		this.rcount = 0;
+		this.rcount = 0;//清零判定图片插入位置的计数器
 		String encoding = "UTF-8"; 
 		File html_input = new File("src/rawhtml/base.html");
 		Document base_html = Jsoup.parse(html_input, "UTF-8", "http://example.com/");//读取html模板文件
-		InputStreamReader read = new InputStreamReader(   
+		InputStreamReader base_reader = new InputStreamReader(   
 				new FileInputStream(text_file), encoding);   
-		BufferedReader bufferedReader = new BufferedReader(read);   
-		String eachline = bufferedReader.readLine();  
+		BufferedReader basebufferedReader = new BufferedReader(base_reader);   
+		
+		Element text_box = base_html.select("div#text").first();
+	    Element body = base_html.select("body").first();
+	    Element title = base_html.select("h3").first(); 
+		
+		String eachline = basebufferedReader.readLine();  
+		title.text(eachline);//设置标题
+		
 		ArrayList<String> lines = new ArrayList<String>();  //实例化一个数组装文章段落
-		lines.add(eachline);
 		while (eachline != null) {   
-//			System.out.println(eachline.toString().trim()); 
 			if(eachline.length() > 0){
 				lines.add(eachline);
 			}
-			eachline = bufferedReader.readLine(); 
-		} //读段落。存入数组
-		Element title = base_html.select("h3").first(); 
-		title.text(lines.get(0));//设置标题
-		lines.remove(0);
-		Element text_box = base_html.select("div#text").first();
-		//System.out.println(text_box.toString());
-	    Element js_box = base_html.select("script#main").first();
-	    Element body = base_html.select("body").first();
-	    
+			eachline = basebufferedReader.readLine(); 
+		} //读段落,存入数组	
+		lines.remove(lines.get(0));//删除标题段落（默认为第一段）
+
+		//设置正则匹配符
 	    Pattern img_pat = Pattern.compile("\\((\\W+?)\\)\\[" + img_keyword + "(\\S+?)\\]");
 		Pattern sound_pat = Pattern.compile("\\((\\W+?)\\)\\[" + sound_keyword + "(\\S+?)\\]");
 		Pattern video_pat = Pattern.compile("\\((\\W+?)\\)\\[" + video_keyword + "(\\S+?)\\]");
-//		Matcher m = img_pat.matcher(line);
-		
+		//遍历段落进行匹配
 		for(String line: lines){
 			Matcher img_mat = img_pat.matcher(line);
 			Matcher sound_mat = sound_pat.matcher(line);
 			Matcher video_mat = video_pat.matcher(line);
 			String para = "<p>" + line.trim();
+			//匹配图片
 			if(img_mat.find()){
 				String img_text = img_mat.group(1);
 				String img_id = img_mat.group(2);
-				System.out.println(this.lcount + " " + this.rcount);
+//				System.out.println(this.lcount + " " + this.rcount);
+				//插入图片
 				text_box.append(this.insert_img(img_text, img_id, this.lcount, this.rcount));
+				//段落文字去掉匹配标示
 				para = para.replace(img_mat.group(0), img_mat.group(1));
 			}
+			//匹配音频
 			if(sound_mat.find()){
 				String sound_text = sound_mat.group(1);
 				String sound_id = sound_mat.group(2);
+				//在段落结尾加上图片播放logo
 				para += this.insert_sound(sound_text, sound_id);
 				para = para.replace(sound_mat.group(0), sound_mat.group(1));
 			}
+			//匹配视频
 			if(video_mat.find()){
 				String video_text = video_mat.group(1);
 				String video_id = video_mat.group(2);
+				//替换段落文字成视频链接
 				para = para.replace(video_mat.group(0), this.insert_video(video_text, video_id));
 			}
-//			System.out.println(para);
+			//加上结尾标识符，添加进文本块
 			text_box.append(para + "</p><br>");
 		}
+		
+		//加入音频播放器代码
 		File audio_file = new File("src/rawhtml/audio.html");
-		InputStreamReader audio_read = new InputStreamReader(   
+		InputStreamReader audio_reader = new InputStreamReader(   
 				new FileInputStream(audio_file), encoding);   
-		BufferedReader audiobufferedReader = new BufferedReader(audio_read);  
+		BufferedReader audiobufferedReader = new BufferedReader(audio_reader);  
 		String audio_str = "";
 		eachline = audiobufferedReader.readLine();
 		while(eachline!=null){
 			audio_str += eachline + "\n";
 			eachline = audiobufferedReader.readLine();
 		}
-		System.out.println(audio_str);
+		//读取所有段落拼接，加入网页body部分最后
 		body.append(audio_str);
-		audio_read.close();
-		System.out.println(base_html);
+		audio_reader.close();
+		
+		//生成html文件
 		RandomAccessFile output_file = new RandomAccessFile("src/output/" + text_file.getName() + ".html", "rw");
 		output_file.seek(0);
 		output_file.write(base_html.toString().getBytes());
 		output_file.close();//输出保存html文件
-		read.close();  
+		base_reader.close();  
 	}
 	public static void main(String[] args) throws IOException {
-		ToHtml th = new ToHtml("pic", "sound", "video");//实例化类，设定判定图片，音频视频的关键词参数
-		
-		//System.out.println(base_html.toString());
+		ToHtml th = new ToHtml("pic", "sound", "video");//实例化类，设定判定图片，音频，视频的关键词参数
 		File text_dir = new File("src/static/text/");//读取文本文件夹
 		if(text_dir.isDirectory()){
-			File[] text_files = text_dir.listFiles();//遍历文本文件，执行处理
+			File[] text_files = text_dir.listFiles();//遍历文本文件，依次执行处理
 			for(File text_file: text_files){
-				//System.out.println(file.getName());
 				if(!text_file.getName().endsWith("~")){
 					th.handle_html(text_file);
 				}
