@@ -1,16 +1,5 @@
 var myAudio = new Audio();
 function play_sound(sound_url) {
-    // if(myAudio.currentSrc!=sound_url){
-    //     myAudio.pause();
-    //     myAudio.setAttribute('src', sound_url);
-    //     myAudio.load();
-    //     myAudio.play();
-    // }        
-    // else{
-    //     myAudio.setAttribute('src', sound_url);
-    //     myAudio.load();
-    //     myAudio.play();
-    // }
     if(myAudio.paused==true){
         myAudio.setAttribute('src', sound_url);
         myAudio.load();
