@@ -8,8 +8,10 @@
 <fo:block font-size="18pt" font-family="kaiti" line-height="24pt" space-after.optimum="15pt" background-color="blue" color="white" text-align="center" padding-top="3pt">
 二、威伯</fo:block>
 <fo:block font-size="12pt" font-family="kaiti" line-height="15pt" space-after.optimum="3pt" text-align="justify">
-　　芬爱威伯胜过了一切。她喜欢抚摩着他，喂他，抱他上床睡觉。每天早晨，只要她一起床，就亲自给他热牛奶，再为他系上围嘴儿，为他拿着瓶子。每天下午，当校车停到她家门前，她就会跳下车，跑到厨房为他准备另一瓶牛奶。晚饭时她还要一遍遍地喂他，直到上床就寝前为止。威伯每天下午，芬刚离开学校的时候，阿拉贝尔太太就替芬喂威伯。威伯虽然喜欢喝奶，但只有芬为他热奶时，他才感到莫大的幸福，这时他会站起来，用充满深情的眼睛注视着她。威伯<fo:block>
-<fo:external-graphic text-align="left" width="50%" content-height="50%" scaling="uniform" src="url('static/pics/small_pic6.jpg')"/></fo:block></fo:block>
+　　芬爱威伯胜过了一切。她喜欢抚摩着他，喂他，抱他上床睡觉。每天早晨，只要她一起床，就亲自给他热牛奶，再为他系上围嘴儿，为他拿着瓶子。每天下午，当校车停到她家门前，她就会跳下车，跑到厨房为他准备另一瓶牛奶。晚饭时她还要一遍遍地喂他，直到上床就寝前为止。威伯每天下午，芬刚离开学校的时候，阿拉贝尔太太就替芬喂威伯。威伯虽然喜欢喝奶，但只有芬为他热奶时，他才感到莫大的幸福，这时他会站起来，用充满深情的眼睛注视着她。威伯<fo:float float="start"> <fo:block>
+<fo:external-graphic text-align="left" width='8.5cm' content-width='8cm' height='12.5cm' content-height='12cm' scaling="uniform" src="url('static/pics/small_pic6.jpg')"/></fo:block>
+</fo:float>
+</fo:block>
 <fo:block font-size="12pt" font-family="kaiti" line-height="15pt" space-after.optimum="3pt" text-align="justify">
 　　在威伯出生后的最初数天里，他被允许住在厨房火炉旁的盒子里。可后来，阿拉贝尔太太开始抱怨说，他该搬到柴棚那儿的大一点的房子里去住。因此在两周大的时候，他被挪到了户外。已经快到苹果树开花的时候了，天气正在变暖。阿拉贝尔先生在苹果树下为威伯特别圈了一座小院子，在里面给他搭了一个铺满稻草的大房子，房子底下还留出一个小门，如果他高兴，他可以随时从中进出。</fo:block>
 <fo:block font-size="12pt" font-family="kaiti" line-height="15pt" space-after.optimum="3pt" text-align="justify">

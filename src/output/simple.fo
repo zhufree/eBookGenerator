@@ -1,113 +1,76 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!-- example for a simple fo file. At the beginning the page layout is set.
-  Below fo:root there is always
-- a single fo:layout-master-set which defines one or more page layouts
-- an optional fo:declarations
-- and a sequence of one or more fo:page-sequences containing the text and formatting instructions
--->
-
-<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
-
+<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xml:lang="en">
   <fo:layout-master-set>
-  <!-- fo:layout-master-set defines in its children the page layout:
-       the pagination and layout specifications
-      - page-masters: have the role of describing the intended subdivisions
-                       of a page and the geometry of these subdivisions
-                      In this case there is only a simple-page-master which defines the
-                      layout for all pages of the text
-  -->
-    <!-- layout information -->
-    <fo:simple-page-master master-name="simple"
-                  page-height="29.7cm"
-                  page-width="21cm"
-                  margin-top="1cm"
-                  margin-bottom="2cm"
-                  margin-left="2.5cm"
-                  margin-right="2.5cm">
+    <fo:simple-page-master page-height="279mm" page-width="216mm" margin-top="10mm" margin-left="20mm" margin-right="20mm" margin-bottom="10mm" master-name="main">
+    <!-- <fo:region-body border="thin solid #EEEEEE" margin-top="20mm" margin-bottom="10mm" margin-left="25mm" margin-right="25mm"/> -->
       <fo:region-body margin-top="3cm"/>
-      <fo:region-before extent="3cm"/>
-      <fo:region-after extent="1.5cm"/>
+      <fo:region-before border-style="none" border-width="thin" extent="15mm"/>
     </fo:simple-page-master>
   </fo:layout-master-set>
-  <!-- end: defines page layout -->
-
-
-  <!-- start page-sequence
-       here comes the text (contained in flow objects)
-       the page-sequence can contain different fo:flows
-       the attribute value of master-name refers to the page layout
-       which is to be used to layout the text contained in this
-       page-sequence-->
-  <fo:page-sequence master-reference="simple">
-
-      <!-- start fo:flow
-           each flow is targeted
-           at one (and only one) of the following:
-           xsl-region-body (usually: normal text)
-           xsl-region-before (usually: header)
-           xsl-region-after  (usually: footer)
-           xsl-region-start  (usually: left margin)
-           xsl-region-end    (usually: right margin)
-           ['usually' applies here to languages with left-right and top-down
-            writing direction like English]
-           in this case there is only one target: xsl-region-body
-        -->
+  <fo:page-sequence master-reference="main">
+    <fo:static-content flow-name="xsl-region-before">
+      <fo:block font-size="9pt">
+        <fo:external-graphic src="url('static/pics/pic1.jpg')" content-height="12mm"/>
+      XSL FO Sample Copyright © 1996-2005 Antenna House, Inc. All rights reserved.
+      </fo:block>
+    </fo:static-content>
     <fo:flow flow-name="xsl-region-body">
-
-      <!-- each paragraph is encapsulated in a block element
-           the attributes of the block define
-           font-family and size, line-heigth etc. -->
-
-      <!-- this defines a title -->
-      <fo:block font-size="18pt"
-            font-family="kaiti"
-            line-height="24pt"
-            space-after.optimum="15pt"
-            background-color="blue"
-            color="white"
-            text-align="center"
-            padding-top="3pt">
-        Extensible Markup Language (XML) 1.0文件
-      </fo:block>
-
-
-      <!-- this defines normal text -->
-      <fo:block font-size="12pt"
-                font-family="kaiti"
-                line-height="15pt"
-                space-after.optimum="3pt"
-                text-align="justify">
-        The Extensible Markup Language (XML) is a subset of SGML that is completely described in this document. Its goal is to
-        enable generic SGML to be served, received, and processed on the Web in the way that is now possible with HTML. XML
-        has been designed for ease of implementation and for interoperability with both SGML and HTML.
-      </fo:block>
-
-      <!-- <fo:float float="left"> -->
-        
-      
-      <!-- this defines normal text -->
-      <fo:block font-size="12pt"
-                font-family="sans-serif"
-                line-height="15pt"
-                space-after.optimum="3pt"
-                text-align="justify">
-                <fo:block>
-          <fo:external-graphic 
-                        text-align="left"
-                        width="50%"
-                        content-height="50%"
-                        scaling="uniform"
-                        src="url('static/pics/pic1.jpg')"/>
+      <fo:block background-color="yellow" space-before="0.5em" space-after="0.5em">Side float </fo:block>
+      <fo:block space-before="0.5em" space-after="0.5em">
+      <fo:float float="start">
+        <fo:block start-indent="0cm" end-indent="0cm" border=".1pt solid red" color="blue">
+        <fo:external-graphic src="url('static/pics/pic1.jpg')" width="5cm" height="3.5cm" content-width="4.5cm" content-height="3.0cm" display-align="center" text-align="center"/>
+        <fo:block/>
+        Image 1: image inside the side float
         </fo:block>
-        The Extensible Markup Language (XML) is a subset of SGML that is completely described in this document. Its goal is to
-        enable generic SGML to be served, received, and processed on the Web in the way that is now possible with HTML. XML
-        has been designed for ease of implementation and for interoperability with both SGML and HTML.
-
+      </fo:float>
+      An image is inserted at the beginning of the paragraph as fo:float.
       </fo:block>
-      <!-- </fo:float> -->
-
-
-    </fo:flow> <!-- closes the flow element-->
-  </fo:page-sequence> <!-- closes the page-sequence -->
+      <fo:block text-indent="2em" space-before="0.5em" space-after="0.5em">
+      Since DTP requires a person to compose layout page by page, work load increases proportionate of number of pages contained in a given document. In contrast, XSL formatting processes the prepared XML document as a batch.
+      </fo:block>
+      <fo:block text-indent="2em" space-before="0.5em" space-after="0.5em">
+      To format XML using XSL requires development of a stylesheet. Work load is proportionate to the number of tag sets and the complexity of layout, not the number of pages.
+      </fo:block>
+      <fo:block background-color="yellow" space-before="0.5em" space-after="0.5em">Side float </fo:block>
+      <fo:block space-before="0.5em" space-after="0.5em">An image is inserted to the next line as fo:float.</fo:block>
+      <fo:block space-before="0.5em" space-after="0.5em">
+      <fo:float float="end">
+      <fo:block start-indent="0cm" end-indent="0cm" border=".1pt solid red" color="blue">
+      <fo:external-graphic src="url('static/pics/pic1.jpg')" width="5cm" height="3.5cm" content-width="4.5cm" content-height="3.0cm" display-align="center" text-align="center"/>
+      <fo:block/>
+      Image 2: image inside the side float
+      </fo:block>
+      </fo:float>
+      An image is inserted at the end of the paragraph as fo:float.
+      </fo:block>
+      <fo:block text-indent="2em" space-before="0.5em" space-after="0.5em">
+      Since DTP requires a person to compose layout page by page, work load increases proportionate of number of pages contained in a given document. In contrast, XSL formatting processes the prepared XML document as a batch.
+      </fo:block>
+      <fo:block text-indent="2em" space-before="0.5em" space-after="0.5em">
+      To format XML using XSL requires development of a stylesheet. Work load is proportionate to the number of tag sets and the complexity of layout, not the number of pages.
+      </fo:block>
+      <fo:block background-color="yellow" space-before="0.5em" space-after="0.5em">Side float </fo:block>
+      <fo:block start-indent="5.5cm" space-before="0.5em" space-after="0.5em">
+      An image is inserted to the next line as fo:float. Place the image inside the indent of the block.
+      </fo:block>
+      <fo:block space-before="0.5em" space-after="0.5em">
+      <fo:float start-indent="0cm" float="start">
+      <fo:block border=".1pt solid red" color="blue">
+      <fo:external-graphic src="url('static/pics/pic1.jpg')" width="5cm" height="3.5cm" content-width="4.5cm" content-height="3.0cm" display-align="center" text-align="center"/>
+      <fo:block/>
+      Image 3: image inside the side float
+      </fo:block>
+      </fo:float>
+      <fo:block start-indent="5.5cm">
+      An image is inserted at the beginning of the paragraph as fo:float.
+      </fo:block>
+      <fo:block start-indent="5.5cm" space-before="0.5em" space-after="0.5em">
+      Since DTP requires a person to compose layout page by page, work load increases proportionate of number of pages contained in a given document. In contrast, XSL formatting processes the prepared XML document as a batch.
+      </fo:block>
+      <fo:block start-indent="5.5cm" space-before="0.5em" space-after="0.5em">
+      To format XML using XSL requires development of a stylesheet. Work load is proportionate to the number of tag sets and the complexity of layout, not the number of pages.
+      </fo:block>
+      </fo:block>
+    </fo:flow>
+  </fo:page-sequence>
 </fo:root>

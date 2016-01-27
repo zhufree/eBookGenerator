@@ -68,55 +68,65 @@ public class ToPdf {
 		String full_pic_name = this.img_keyword + img_id;//获取不带后缀的文件全名
 		System.out.println("==========insert img " + full_pic_name + "==========");
 		File img_dir = new File("src/static/pics");
-		String new_block = "<fo:block>\n<fo:external-graphic ";
+		String new_block = "";
 		if(img_dir.isDirectory()){
 			File[] img_files = img_dir.listFiles();//遍历图片文件
 			for(File img_file: img_files){
 				if(img_file.getName().startsWith(full_pic_name)){//按文件名匹配图片
 					BufferedImage cur_img = ImageIO.read(img_file);//打开图片文件
 					if(cur_img.getWidth() > 400 && cur_img.getWidth() > cur_img.getHeight()){
-						new_block += "text-align=\"center\" " +
-									"width=\"50%\" " +
-									"content-height=\"50%\" " +
+						new_block += "<fo:external-graphic text-align=\"center\" " +
+									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + cur_img.getWidth()/50 + "cm' " +
+									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + cur_img.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/" +
-									img_file.getName() + "')\"\n/>" + "</fo:block>";
+									img_file.getName() + "')\"\n/>";
 					}else if(cur_img.getWidth() > 400 && cur_img.getWidth() < cur_img.getHeight()){
 						//改图片大小
 						this.change_img_size(cur_img, "src/static/pics/small_" + img_file.getName());
 						if(lcount > rcount){
-							new_block += "text-align=\"right\" " +
-									"width=\"50%\" " +
-									"content-height=\"50%\" " +
+							new_block += "<fo:float float=\"end\"> <fo:block>\n<fo:external-graphic text-align=\"right\" " +
+									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + cur_img.getWidth()/50 + "cm' " +
+									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + cur_img.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/small_" +
-									img_file.getName() + "')\"/>" + "</fo:block>";
+									img_file.getName() + "')\"/>" + "</fo:block>\n</fo:float>\n";
 							this.rcount += 1;
 						}else{
-							new_block += "text-align=\"left\" " +
-									"width=\"50%\" " +
-									"content-height=\"50%\" " +
+							new_block += "<fo:float float=\"start\"> <fo:block>\n<fo:external-graphic text-align=\"left\" " +
+									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + cur_img.getWidth()/50 + "cm' " +
+									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + cur_img.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/small_" +
-									img_file.getName() + "')\"/>" + "</fo:block>";
+									img_file.getName() + "')\"/>" + "</fo:block>\n</fo:float>\n";
 							this.lcount += 1;
 						}
 					}else{
 						if(lcount > rcount){
-							new_block += "text-align=\"right\" " +
-									"width=\"50%\" " +
-									"content-height=\"50%\" " +
+							new_block += "<fo:float float=\"end\"> <fo:block>\n<fo:external-graphic text-align=\"right\" " +
+									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + cur_img.getWidth()/50 + "cm' " +
+									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + cur_img.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/" +
-									img_file.getName() + "')\"/>" + "</fo:block>";
+									img_file.getName() + "')\"/>" + "</fo:block>\n</fo:float>\n";
 							this.rcount += 1;
 						}else{
-							new_block += "text-align=\"left\" " +
-									"width=\"50%\" " +
-									"content-height=\"50%\" " +
+							new_block += "<fo:float float=\"start\"> <fo:block>\n<fo:external-graphic text-align=\"left\" " +
+									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + cur_img.getWidth()/50 + "cm' " +
+									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + cur_img.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/" +
-									img_file.getName() + "')\"/>" + "</fo:block>";
+									img_file.getName() + "')\"/>" + "</fo:block>\n</fo:float>\n";
 							this.lcount += 1;
 						}
 					}
