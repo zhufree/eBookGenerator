@@ -1,7 +1,7 @@
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format" xml:lang="en">
   <fo:layout-master-set>
     <fo:simple-page-master page-height="279mm" page-width="216mm" margin-top="10mm" margin-left="20mm" margin-right="20mm" margin-bottom="10mm" master-name="main">
-    <!-- <fo:region-body border="thin solid #EEEEEE" margin-top="20mm" margin-bottom="10mm" margin-left="25mm" margin-right="25mm"/> -->
+    <fo:region-body border="thin solid #EEEEEE" margin-top="20mm" margin-bottom="10mm" margin-left="25mm" margin-right="25mm"/>
       <fo:region-body margin-top="3cm"/>
       <fo:region-before border-style="none" border-width="thin" extent="15mm"/>
     </fo:simple-page-master>
