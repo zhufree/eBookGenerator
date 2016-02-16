@@ -4,8 +4,10 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
@@ -215,10 +217,10 @@ public class ToHtml {
 		audio_reader.close();
 		
 		//生成html文件
-		RandomAccessFile output_file = new RandomAccessFile("src/output/" + text_file.getName() + ".html", "rw");
-		output_file.seek(0);
-		output_file.write(base_html.toString().getBytes());
-		output_file.close();//输出保存html文件
+		FileWriter fileWritter = new FileWriter("src/output/" + text_file.getName().substring(0, text_file.getName().length()-4) + ".html");
+		BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+		bufferWritter.write(base_html.toString());
+		bufferWritter.close();
 		base_reader.close();  
 	}
 	public static void main(String[] args) throws IOException {

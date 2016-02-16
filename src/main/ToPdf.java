@@ -11,8 +11,10 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -152,14 +154,14 @@ public class ToPdf {
 					                  "margin-top=\"1cm\" " +
 					                  "margin-bottom=\"2cm\" " +
 					                  "margin-left=\"2.5cm\" " +
-					                  "margin-right=\"2.5cm\">" +
-								      "<fo:region-body margin-top=\"1cm\"/>\n" +
+					                  "margin-right=\"2.5cm\">\n" +
+								      "<fo:region-body margin-top=\"1cm\" />\n" +
 								      "<fo:region-before extent=\"3cm\"/>\n" +
 								      "<fo:region-after extent=\"1.5cm\"/>\n" +
 								    "</fo:simple-page-master>\n" +
 								  "</fo:layout-master-set>\n";
 		String flow_head = "<fo:page-sequence master-reference=\"simple\">\n" +
-							"<fo:flow flow-name=\"xsl-region-body\">\n";
+							"<fo:flow flow-name=\"xsl-region-body\" border=\"0\" padding=\"0\">\n";
 		String title_block = "<fo:block font-size=\"18pt\" " +
 					            "font-family=\"kaiti\" " +
 					            "line-height=\"2cm\" " +
@@ -226,11 +228,11 @@ public class ToPdf {
 		}
 		all_fo += "</fo:flow>\n</fo:page-sequence>\n</fo:root>";
 //		System.out.println(all_fo);
-		//生成html文件
-		RandomAccessFile output_file = new RandomAccessFile("src/output/" + text_file.getName() + ".fo", "rw");
-		output_file.seek(0);
-		output_file.write(all_fo.getBytes());
-		output_file.close();//输出保存html文件
+		//生成fo文件
+		FileWriter fileWritter = new FileWriter("src/output/" + text_file.getName().substring(0, text_file.getName().length()-4) + ".fo");
+		BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+		bufferWritter.write(all_fo);
+		bufferWritter.close();
 		base_reader.close();  
 	}
 	
@@ -256,7 +258,8 @@ public class ToPdf {
 			File[] fo_files = fo_dir.listFiles();//遍历文本文件，依次执行处理
 			for(File fo_file: fo_files){
 				if(fo_file.getName().endsWith(".fo")){
-					OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("src/output/" + fo_file.getName() + ".pdf")));
+					OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("src/output/" + 
+						fo_file.getName().substring(0, fo_file.getName().length()-3) + ".pdf")));
 					Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
 				    TransformerFactory factory = TransformerFactory.newInstance();
 				    Transformer transformer = factory.newTransformer(); // identity transformer

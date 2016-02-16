@@ -1,12 +1,13 @@
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
 <fo:layout-master-set>
-<fo:simple-page-master master-name="simple" page-height="29cm" page-width="21cm" margin-top="1cm" margin-bottom="2cm" margin-left="2.5cm" margin-right="2.5cm"><fo:region-body margin-top="1cm"/>
+<fo:simple-page-master master-name="simple" page-height="29cm" page-width="21cm" margin-top="1cm" margin-bottom="2cm" margin-left="2.5cm" margin-right="2.5cm">
+<fo:region-body margin-top="1cm" />
 <fo:region-before extent="3cm"/>
 <fo:region-after extent="1.5cm"/>
 </fo:simple-page-master>
 </fo:layout-master-set>
 <fo:page-sequence master-reference="simple">
-<fo:flow flow-name="xsl-region-body">
+<fo:flow flow-name="xsl-region-body" border="0" padding="0">
 <fo:block font-size="18pt" font-family="kaiti" line-height="2cm" space-after.optimum="15pt" background-color="blue" color="white" text-align="center" padding-top="3pt">
 一、早餐之前</fo:block>
 <fo:block font-size="12pt" font-family="kaiti" line-height="1cm" space-after.optimum="3pt" text-align="justify">
