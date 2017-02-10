@@ -1,8 +1,6 @@
 package main;
 
-
 import org.apache.fop.fonts.apps.TTFReader;
-
 
 public class AddFont {
     public static void main(String args[]){

@@ -32,21 +32,59 @@ import org.apache.fop.apps.MimeConstants;
 import org.xml.sax.SAXException;
 
 public class ToPdf {
-	String img_keyword, sound_keyword, video_keyword;
+	public final String imgKeyword = "pic", soundKeyword = "sound", videoKeyword = "video";
+	String textPath, picPath, audioPath, videoPath, outputPath;
 	int lcount, rcount, linecount;
 
-	public ToPdf(String img_keyword, String sound_keyword, String video_keyword){
-		this.img_keyword = img_keyword;
-		this.sound_keyword = sound_keyword;
-		this.video_keyword = video_keyword;
+	public ToPdf(String textPath, String picPath, String audioPath, String videoPath, 
+				String outputPath) throws IOException, SAXException, TransformerException  {
+		this.textPath = textPath;
+		this.picPath = picPath;
+		this.audioPath = audioPath;
+		this.videoPath = videoPath;
+		this.outputPath = outputPath;
 		this.lcount = 0;
 		this.rcount = 0;//在左侧或右侧插入图片的计数器
 		this.linecount= 0;//行数计数用来判断是否换页，如果换页使左右计数器都清零
+		File text_dir = new File(textPath);//读取文本文件夹
+		if(text_dir.isDirectory()){
+			File[] text_files = text_dir.listFiles();//遍历文本文件，依次执行处理
+			for(File text_file: text_files){
+				if(!text_file.getName().endsWith("~")){
+					//处理文本文件转换成fo文件
+					handle_pdf(text_file);
+				}
+			}
+		}
+		//设置转换配置文件
+		FopFactory fopFactory = FopFactory.newInstance(new File("/home/zhufree/Tools/fop-2.1/conf/fop.xconf"));
+		//设置输出文件
+		
+	    //设置源文件
+		File fo_dir = new File(outputPath);
+	    if(text_dir.isDirectory()){
+			File[] fo_files = fo_dir.listFiles();//遍历文本文件，依次执行处理
+			for(File fo_file: fo_files){
+				if(fo_file.getName().endsWith(".fo")){
+					OutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outputPath + "/" + 
+						fo_file.getName().substring(0, fo_file.getName().length()-3) + ".pdf")));
+					Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
+				    TransformerFactory factory = TransformerFactory.newInstance();
+				    Transformer transformer = factory.newTransformer(); // identity transformer
+					//处理文本文件转换成fo文件
+					Source src = new StreamSource(fo_file);
+				    Result res = new SAXResult(fop.getDefaultHandler());
+				    //转换
+				    transformer.transform(src, res);
+				    out.close();
+				}
+			}
+		}
 	}
 	
 	public void change_img_size(BufferedImage raw_img, String new_pic_url) throws IOException{
 		//处理需要缩小的图片
-		System.out.println("==========change img size==========");
+		System.out.println("改变图片大小：");
 		//获取原始图片长宽
 	    int row_width = raw_img.getWidth(), row_height = raw_img.getHeight();
 	    //计算缩小的比例
@@ -64,9 +102,9 @@ public class ToPdf {
 	
 	public String insert_img(String img_text, String img_id) throws IOException{
 		//插入图片函数
-		String full_pic_name = this.img_keyword + img_id;//获取不带后缀的文件全名
+		String full_pic_name = this.imgKeyword + img_id;//获取不带后缀的文件全名
 		System.out.println("==========insert img " + full_pic_name + "==========");
-		File img_dir = new File("src/static/pics");
+		File img_dir = new File(picPath);
 		String new_block = "";
 		if(img_dir.isDirectory()){
 			File[] img_files = img_dir.listFiles();//遍历图片文件
@@ -188,9 +226,9 @@ public class ToPdf {
 				                "space-after.optimum=\"3pt\" " +
 				                "text-align=\"justify\">\n";
 		//设置正则匹配符
-	    Pattern img_pat = Pattern.compile("\\((\\W+?)\\)\\[" + img_keyword + "(\\S+?)\\]");
-	    Pattern sound_pat = Pattern.compile("\\((\\W+?)\\)\\[" + sound_keyword + "(\\S+?)\\]");
-		Pattern video_pat = Pattern.compile("\\((\\W+?)\\)\\[" + video_keyword + "(\\S+?)\\]");
+	    Pattern img_pat = Pattern.compile("\\((\\W+?)\\)\\[" + imgKeyword + "(\\S+?)\\]");
+	    Pattern sound_pat = Pattern.compile("\\((\\W+?)\\)\\[" + soundKeyword + "(\\S+?)\\]");
+		Pattern video_pat = Pattern.compile("\\((\\W+?)\\)\\[" + videoKeyword + "(\\S+?)\\]");
 	    //遍历段落进行匹配
 		for(String line: lines){
 			this.linecount += line.length()/37+1;//判断这一段将生成多少行，并加入行数计数器中
@@ -229,7 +267,7 @@ public class ToPdf {
 		all_fo += "</fo:flow>\n</fo:page-sequence>\n</fo:root>";
 //		System.out.println(all_fo);
 		//生成fo文件
-		FileWriter fileWritter = new FileWriter("src/output/" + text_file.getName().substring(0, text_file.getName().length()-4) + ".fo");
+		FileWriter fileWritter = new FileWriter(outputPath + "/" + text_file.getName().substring(0, text_file.getName().length()-4) + ".fo");
 		BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
 		bufferWritter.write(all_fo);
 		bufferWritter.close();
@@ -237,41 +275,6 @@ public class ToPdf {
 	}
 	
 	public static void main(String[] args) throws IOException, SAXException, TransformerException {
-		ToPdf tp = new ToPdf("pic", "sound", "video");//实例化类，设定判定图片，音频，视频的关键词参数
-		File text_dir = new File("src/static/text/");//读取文本文件夹
-		if(text_dir.isDirectory()){
-			File[] text_files = text_dir.listFiles();//遍历文本文件，依次执行处理
-			for(File text_file: text_files){
-				if(!text_file.getName().endsWith("~")){
-					//处理文本文件转换成fo文件
-					tp.handle_pdf(text_file);
-				}
-			}
-		}
-		//设置转换配置文件
-		FopFactory fopFactory = FopFactory.newInstance(new File("/home/zhufree/Tools/fop-2.1/conf/fop.xconf"));
-		//设置输出文件
-		
-	    //设置源文件
-		File fo_dir = new File("src/output/");
-	    if(text_dir.isDirectory()){
-			File[] fo_files = fo_dir.listFiles();//遍历文本文件，依次执行处理
-			for(File fo_file: fo_files){
-				if(fo_file.getName().endsWith(".fo")){
-					OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("src/output/" + 
-						fo_file.getName().substring(0, fo_file.getName().length()-3) + ".pdf")));
-					Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
-				    TransformerFactory factory = TransformerFactory.newInstance();
-				    Transformer transformer = factory.newTransformer(); // identity transformer
-					//处理文本文件转换成fo文件
-					Source src = new StreamSource(fo_file);
-				    Result res = new SAXResult(fop.getDefaultHandler());
-				    //转换
-				    transformer.transform(src, res);
-				    out.close();
-				}
-			}
-		}
-	    
+		new ToPdf("src/static/text", "src/static/pics", "src/static/sounds", "src/static/videos", "src/output");//实例化类，设定判定图片，音频，视频的关键词参数
     }
 }
