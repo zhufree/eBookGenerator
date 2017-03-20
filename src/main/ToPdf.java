@@ -183,7 +183,7 @@ public class ToPdf {
 		lines.remove(lines.get(0));//删除标题段落（默认为第一段）
 		all_fo = root_head + layout_master_str + flow_head + title_block;
 		String line_block_head = "<fo:block font-size=\"12pt\" " +
-				                "font-family=\"kaiti\" " +
+				                "font-family=\"micro\" " +
 				                "line-height=\"1cm\" " +
 				                "space-after.optimum=\"3pt\" " +
 				                "text-align=\"justify\">\n";

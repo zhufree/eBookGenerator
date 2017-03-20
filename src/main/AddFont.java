@@ -7,9 +7,11 @@ import org.apache.fop.fonts.apps.TTFReader;
 public class AddFont {
     public static void main(String args[]){
         String[] parameters = {
-        "-ttcname",
-        "kaiti",
-        "/home/zhufree/Tools/fop-2.1/conf/kaiti.ttf", "/home/zhufree/Tools/fop-2.1/conf/kaiti.xml", };
+	        "-ttcname",
+	        "micro",
+	        "F:\\code\\libs\\fop-2.1\\conf\\micro.ttf", 
+	        "F:\\code\\libs\\fop-2.1\\conf\\micro.xml",
+        };
         TTFReader.main(parameters);
-        }
+    }
 }
