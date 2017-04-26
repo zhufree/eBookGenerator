@@ -32,121 +32,159 @@ import org.apache.fop.apps.MimeConstants;
 import org.xml.sax.SAXException;
 
 public class ToPdf {
-	String img_keyword, sound_keyword, video_keyword;
+	public final String imgKeyword = "pic", soundKeyword = "sound", videoKeyword = "video";
+	String textPath, picPath, audioPath, videoPath, outputPath;
 	int lcount, rcount, linecount;
 
-	public ToPdf(String img_keyword, String sound_keyword, String video_keyword){
-		this.img_keyword = img_keyword;
-		this.sound_keyword = sound_keyword;
-		this.video_keyword = video_keyword;
+	public ToPdf(String textPath, String picPath, String audioPath, String videoPath, 
+				String outputPath) throws IOException, SAXException, TransformerException  {
+		this.textPath = textPath;
+		this.picPath = picPath;
+		this.audioPath = audioPath;
+		this.videoPath = videoPath;
+		this.outputPath = outputPath;
 		this.lcount = 0;
 		this.rcount = 0;//在左侧或右侧插入图片的计数器
 		this.linecount= 0;//行数计数用来判断是否换页，如果换页使左右计数器都清零
+		File textDir = new File(textPath);//读取文本文件夹
+		if(textDir.isDirectory()){
+			File[] textFiles = textDir.listFiles();//遍历文本文件，依次执行处理
+			for(File textFile: textFiles){
+				if(!textFile.getName().endsWith("~")){
+					//处理文本文件转换成fo文件
+					handle_pdf(textFile);
+				}
+			}
+		}
+		//设置转换配置文件
+		FopFactory fopFactory = FopFactory.newInstance(new File("F:/code/libs/fop-2.1/conf/fop.xconf"));
+		//设置输出文件
+		
+	    //设置源文件
+		File foDir = new File(outputPath);
+	    if(textDir.isDirectory()){
+			File[] foFiles = foDir.listFiles();//遍历文本文件，依次执行处理
+			for(File foFile: foFiles){
+				if(foFile.getName().endsWith(".fo")){
+					OutputStream out = new BufferedOutputStream(new FileOutputStream(new File(outputPath + "/" + 
+						foFile.getName().substring(0, foFile.getName().length()-3) + ".pdf")));
+					Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
+				    TransformerFactory factory = TransformerFactory.newInstance();
+				    Transformer transformer = factory.newTransformer(); // identity transformer
+					//处理文本文件转换成fo文件
+					Source src = new StreamSource(foFile);
+				    Result res = new SAXResult(fop.getDefaultHandler());
+				    //转换
+				    transformer.transform(src, res);
+				    out.close();
+				}
+			}
+		}
 	}
 	
-	public void change_img_size(BufferedImage raw_img, String new_pic_url) throws IOException{
+	public void changeImgSize(BufferedImage rawImg, String newPicUrl) throws IOException{
 		//处理需要缩小的图片
-		System.out.println("==========change img size==========");
+		System.out.println("改变图片大小：");
 		//获取原始图片长宽
-	    int row_width = raw_img.getWidth(), row_height = raw_img.getHeight();
+	    int rowWidth = rawImg.getWidth(), rowHeight = rawImg.getHeight();
 	    //计算缩小的比例
-	    float radio = (float) row_width/300;
+	    float radio = (float) rowWidth/300;
 	    //计算缩小后的长宽
-	    int new_width = 300, new_height = (int) (row_height/radio);
+	    int newWidth = 300, newHeight = (int) (rowHeight/radio);
 	    
-	    Image small_img = raw_img.getScaledInstance(new_width, new_height, Image.SCALE_SMOOTH);//缩小
-	    BufferedImage new_img = new BufferedImage(new_width, new_height, BufferedImage.TYPE_INT_RGB);
-        Graphics g = new_img.getGraphics();
-        g.drawImage(small_img, 0, 0, null); // 绘制缩小后的图
+	    Image smallImg = rawImg.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);//缩小
+	    BufferedImage newImg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics g = newImg.getGraphics();
+        g.drawImage(smallImg, 0, 0, null); // 绘制缩小后的图
         g.dispose();
-        ImageIO.write(new_img, "JPEG", new File(new_pic_url));// 输出到文件流
+        ImageIO.write(newImg, "JPEG", new File(newPicUrl));// 输出到文件流
 	}
 	
-	public String insert_img(String img_text, String img_id) throws IOException{
+	public String insertImg(String imgText, String imgId) throws IOException{
 		//插入图片函数
-		String full_pic_name = this.img_keyword + img_id;//获取不带后缀的文件全名
-		System.out.println("==========insert img " + full_pic_name + "==========");
-		File img_dir = new File("src/static/pics");
-		String new_block = "";
-		if(img_dir.isDirectory()){
-			File[] img_files = img_dir.listFiles();//遍历图片文件
-			for(File img_file: img_files){
-				if(img_file.getName().startsWith(full_pic_name)){//按文件名匹配图片
-					BufferedImage cur_img = ImageIO.read(img_file);//打开图片文件
-					if(cur_img.getWidth() > 400 && cur_img.getWidth() > cur_img.getHeight()){
-						new_block += "\n<fo:external-graphic text-align=\"center\" " +
-									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
-									"content-width='" + cur_img.getWidth()/50 + "cm' " +
-									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
-									"content-height='" + cur_img.getHeight()/50 + "cm' " +
+		String fullPicName = this.imgKeyword + imgId;//获取不带后缀的文件全名
+		System.out.println("==========insert img " + fullPicName + "==========");
+		File imgDir = new File(picPath);
+		String newBlock = "";
+		if(imgDir.isDirectory()){
+			File[] imgFiles = imgDir.listFiles();//遍历图片文件
+			for(File imgFile: imgFiles){
+				if(imgFile.getName().startsWith(fullPicName)){//按文件名匹配图片
+					BufferedImage curImg = ImageIO.read(imgFile);//打开图片文件
+					if(curImg.getWidth() > 400 && curImg.getWidth() > curImg.getHeight()){
+						newBlock += "\n<fo:external-graphic text-align=\"center\" " +
+									"width='" + (curImg.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + curImg.getWidth()/50 + "cm' " +
+									"height='" + (curImg.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + curImg.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/" +
-									img_file.getName() + "')\"\n/>";//不需浮动，直接插入图片
-					}else if(cur_img.getWidth() > 400 && cur_img.getWidth() < cur_img.getHeight()){
+									imgFile.getName() + "')\"\n/>";//不需浮动，直接插入图片
+					}else if(curImg.getWidth() > 400 && curImg.getWidth() < curImg.getHeight()){
 						//改图片大小
-						this.change_img_size(cur_img, "src/static/pics/small_" + img_file.getName());
+						this.changeImgSize(curImg, "src/static/pics/small_" + imgFile.getName());
 						if(this.lcount > this.rcount){
-							new_block += "\n<fo:float float=\"end\"> \n<fo:block>\n<fo:external-graphic text-align=\"right\" " +
-									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
-									"content-width='" + cur_img.getWidth()/50 + "cm' " +
-									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
-									"content-height='" + cur_img.getHeight()/50 + "cm' " +
+							newBlock += "\n<fo:float float=\"end\"> \n<fo:block>\n<fo:external-graphic text-align=\"right\" " +
+									"width='" + (curImg.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + curImg.getWidth()/50 + "cm' " +
+									"height='" + (curImg.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + curImg.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/small_" +
-									img_file.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";//插入右侧浮动的图片
+									imgFile.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";//插入右侧浮动的图片
 							System.out.println("right");
 							this.rcount += 1;
 						}else{
-							new_block += "\n<fo:float float=\"start\"> \n<fo:block>\n<fo:external-graphic text-align=\"left\" " +
-									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
-									"content-width='" + cur_img.getWidth()/50 + "cm' " +
-									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
-									"content-height='" + cur_img.getHeight()/50 + "cm' " +
+							newBlock += "\n<fo:float float=\"start\"> \n<fo:block>\n<fo:external-graphic text-align=\"left\" " +
+									"width='" + (curImg.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + curImg.getWidth()/50 + "cm' " +
+									"height='" + (curImg.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + curImg.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/small_" +
-									img_file.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";//插入左侧浮动的图片
+									imgFile.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";//插入左侧浮动的图片
 							this.lcount += 1;
 						}
 					}else{
 						if(this.lcount > this.rcount){
-							new_block += "\n<fo:float float=\"end\"> \n<fo:block>\n<fo:external-graphic text-align=\"right\" " +
-									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
-									"content-width='" + cur_img.getWidth()/50 + "cm' " +
-									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
-									"content-height='" + cur_img.getHeight()/50 + "cm' " +
+							newBlock += "\n<fo:float float=\"end\"> \n<fo:block>\n<fo:external-graphic text-align=\"right\" " +
+									"width='" + (curImg.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + curImg.getWidth()/50 + "cm' " +
+									"height='" + (curImg.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + curImg.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/" +
-									img_file.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";
+									imgFile.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";
 							System.out.println("right");
 							this.rcount += 1;
 						}else{
-							new_block += "\n<fo:float float=\"start\"> \n<fo:block>\n<fo:external-graphic text-align=\"left\" " +
-									"width='" + (cur_img.getWidth()/50+0.5) + "cm' " +
-									"content-width='" + cur_img.getWidth()/50 + "cm' " +
-									"height='" + (cur_img.getHeight()/50+0.5) + "cm' " +
-									"content-height='" + cur_img.getHeight()/50 + "cm' " +
+							newBlock += "\n<fo:float float=\"start\"> \n<fo:block>\n<fo:external-graphic text-align=\"left\" " +
+									"width='" + (curImg.getWidth()/50+0.5) + "cm' " +
+									"content-width='" + curImg.getWidth()/50 + "cm' " +
+									"height='" + (curImg.getHeight()/50+0.5) + "cm' " +
+									"content-height='" + curImg.getHeight()/50 + "cm' " +
 									"scaling=\"uniform\" " +
 									"src=\"url('static/pics/" +
-									img_file.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";
+									imgFile.getName() + "')\"/>" + "\n</fo:block>\n</fo:float>\n";
 							this.lcount += 1;
 						}
 					}
 				}
 			}
 		}
-		return new_block;
+		return newBlock;
 	}
 	
-	public void handle_pdf(File text_file) throws IOException{
+	public void handle_pdf(File textFile) throws IOException{
 		this.lcount = 0;
 		this.rcount = 0;//清零判定图片插入位置的计数器
 		String encoding = "UTF-8"; 
 		InputStreamReader base_reader = new InputStreamReader(   
-				new FileInputStream(text_file), encoding);   
+				new FileInputStream(textFile), encoding);   
 		BufferedReader basebufferedReader = new BufferedReader(base_reader);   
 		
 		String all_fo = " ";
-		String root_head = "<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">\n";
+		String rootHead = "<fo:root xmlns:fo=\"http://www.w3.org/1999/XSL/Format\">\n";
 		String layout_master_str = "<fo:layout-master-set>\n" +
 									"<fo:simple-page-master master-name=\"simple\" " +
 					                  "page-height=\"29cm\" " +
@@ -160,10 +198,10 @@ public class ToPdf {
 								      "<fo:region-after extent=\"1.5cm\"/>\n" +
 								    "</fo:simple-page-master>\n" +
 								  "</fo:layout-master-set>\n";
-		String flow_head = "<fo:page-sequence master-reference=\"simple\">\n" +
+		String flowHead = "<fo:page-sequence master-reference=\"simple\">\n" +
 							"<fo:flow flow-name=\"xsl-region-body\" border=\"0\" padding=\"0\">\n";
-		String title_block = "<fo:block font-size=\"18pt\" " +
-					            "font-family=\"kaiti\" " +
+		String titleBlock = "<fo:block font-size=\"18pt\" " +
+					            "font-family=\"micro\" " +
 					            "line-height=\"2cm\" " +
 					            "space-after.optimum=\"15pt\" " +
 					            "background-color=\"blue\" " +
@@ -172,7 +210,7 @@ public class ToPdf {
 					            "padding-top=\"3pt\">\n";
 		
 		String eachline = basebufferedReader.readLine();  
-		title_block += eachline + "</fo:block>\n";
+		titleBlock += eachline + "</fo:block>\n";
 		ArrayList<String> lines = new ArrayList<String>();  //实例化一个数组装文章段落
 		while (eachline != null) {   
 			if(eachline.length() > 0){
@@ -181,16 +219,16 @@ public class ToPdf {
 			eachline = basebufferedReader.readLine(); 
 		} //读段落,存入数组	
 		lines.remove(lines.get(0));//删除标题段落（默认为第一段）
-		all_fo = root_head + layout_master_str + flow_head + title_block;
-		String line_block_head = "<fo:block font-size=\"12pt\" " +
+		all_fo = rootHead + layout_master_str + flowHead + titleBlock;
+		String lineBlockHead = "<fo:block font-size=\"12pt\" " +
 				                "font-family=\"micro\" " +
 				                "line-height=\"1cm\" " +
 				                "space-after.optimum=\"3pt\" " +
 				                "text-align=\"justify\">\n";
 		//设置正则匹配符
-	    Pattern img_pat = Pattern.compile("\\((\\W+?)\\)\\[" + img_keyword + "(\\S+?)\\]");
-	    Pattern sound_pat = Pattern.compile("\\((\\W+?)\\)\\[" + sound_keyword + "(\\S+?)\\]");
-		Pattern video_pat = Pattern.compile("\\((\\W+?)\\)\\[" + video_keyword + "(\\S+?)\\]");
+	    Pattern imgPat = Pattern.compile("\\((\\W+?)\\)\\[" + imgKeyword + "(\\S+?)\\]");
+	    Pattern soundPat = Pattern.compile("\\((\\W+?)\\)\\[" + soundKeyword + "(\\S+?)\\]");
+		Pattern videoPat = Pattern.compile("\\((\\W+?)\\)\\[" + videoKeyword + "(\\S+?)\\]");
 	    //遍历段落进行匹配
 		for(String line: lines){
 			this.linecount += line.length()/37+1;//判断这一段将生成多少行，并加入行数计数器中
@@ -200,36 +238,36 @@ public class ToPdf {
 				this.rcount = 0;
 				this.linecount = 0;//三个计数器都清零，进入下一页
 			}
-			Matcher img_mat = img_pat.matcher(line);
-			Matcher sound_mat = sound_pat.matcher(line);
-			Matcher video_mat = video_pat.matcher(line);
-			String line_block = line_block_head + line.trim();
+			Matcher imgMat = imgPat.matcher(line);
+			Matcher soundMat = soundPat.matcher(line);
+			Matcher videoMat = videoPat.matcher(line);
+			String lineBlock = lineBlockHead + line.trim();
 			//匹配图片
-			if(img_mat.find()){
-				String img_text = img_mat.group(1);
-				String img_id = img_mat.group(2);
+			if(imgMat.find()){
+				String imgText = imgMat.group(1);
+				String imgId = imgMat.group(2);
 				//插入图片
 				//段落文字去掉匹配标示
-				line_block += this.insert_img(img_text, img_id);
-				line_block = line_block.replace(img_mat.group(0), img_mat.group(1));
+				lineBlock += this.insertImg(imgText, imgId);
+				lineBlock = lineBlock.replace(imgMat.group(0), imgMat.group(1));
 			}
-			if(sound_mat.find()){
+			if(soundMat.find()){
 				//替换标示文字
-				line_block = line_block.replace(sound_mat.group(0), sound_mat.group(1));
+				lineBlock = lineBlock.replace(soundMat.group(0), soundMat.group(1));
 			}
 			//匹配视频
-			if(video_mat.find()){
+			if(videoMat.find()){
 				//替换标示文字
-				line_block = line_block.replace(video_mat.group(0), video_mat.group(1));
+				lineBlock = lineBlock.replace(videoMat.group(0), videoMat.group(1));
 			}
 			//加上结尾标识符，添加进文本块
-			 all_fo += line_block + "\n</fo:block>\n";
+			 all_fo += lineBlock + "\n</fo:block>\n";
 			 
 		}
 		all_fo += "</fo:flow>\n</fo:page-sequence>\n</fo:root>";
 //		System.out.println(all_fo);
 		//生成fo文件
-		FileWriter fileWritter = new FileWriter("src/output/" + text_file.getName().substring(0, text_file.getName().length()-4) + ".fo");
+		FileWriter fileWritter = new FileWriter(outputPath + "/" + textFile.getName().substring(0, textFile.getName().length()-4) + ".fo");
 		BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
 		bufferWritter.write(all_fo);
 		bufferWritter.close();
@@ -237,41 +275,6 @@ public class ToPdf {
 	}
 	
 	public static void main(String[] args) throws IOException, SAXException, TransformerException {
-		ToPdf tp = new ToPdf("pic", "sound", "video");//实例化类，设定判定图片，音频，视频的关键词参数
-		File text_dir = new File("src/static/text/");//读取文本文件夹
-		if(text_dir.isDirectory()){
-			File[] text_files = text_dir.listFiles();//遍历文本文件，依次执行处理
-			for(File text_file: text_files){
-				if(!text_file.getName().endsWith("~")){
-					//处理文本文件转换成fo文件
-					tp.handle_pdf(text_file);
-				}
-			}
-		}
-		//设置转换配置文件
-		FopFactory fopFactory = FopFactory.newInstance(new File("/home/zhufree/Tools/fop-2.1/conf/fop.xconf"));
-		//设置输出文件
-		
-	    //设置源文件
-		File fo_dir = new File("src/output/");
-	    if(text_dir.isDirectory()){
-			File[] fo_files = fo_dir.listFiles();//遍历文本文件，依次执行处理
-			for(File fo_file: fo_files){
-				if(fo_file.getName().endsWith(".fo")){
-					OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("src/output/" + 
-						fo_file.getName().substring(0, fo_file.getName().length()-3) + ".pdf")));
-					Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, out);
-				    TransformerFactory factory = TransformerFactory.newInstance();
-				    Transformer transformer = factory.newTransformer(); // identity transformer
-					//处理文本文件转换成fo文件
-					Source src = new StreamSource(fo_file);
-				    Result res = new SAXResult(fop.getDefaultHandler());
-				    //转换
-				    transformer.transform(src, res);
-				    out.close();
-				}
-			}
-		}
-	    
+		new ToPdf("src/static/text", "src/static/pics", "src/static/sounds", "src/static/videos", "src/output");//实例化类，设定判定图片，音频，视频的关键词参数
     }
 }
